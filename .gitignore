@@ -1,0 +1,8 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data export & temporary artifacts
+docs/eval_results.json
+*.pdf
