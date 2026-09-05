@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Newsreader', Georgia, Cambria, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --bg-canvas: #090a0d;
+    --fg-primary: #f4f3ef;
+    --fg-secondary: #8a8880;
+    --fg-muted: #5c5a54;
+    --border-hairline: rgba(255, 255, 255, 0.07);
+    --border-subtle: rgba(255, 255, 255, 0.12);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-canvas);
+    color: var(--fg-primary);
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    letter-spacing: -0.025em;
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+}
+
+/* Hairline borders & architectural dividers */
+.border-hairline {
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.divide-hairline > * + * {
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Subtle flat architectural surface — NO excessive glassmorphism */
+.surface-subtle {
+  background-color: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.surface-interactive {
+  background-color: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.surface-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Restrained scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090a0d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Focused keyframe animations */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes lineDraw {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+.animate-line-draw {
+  stroke-dasharray: 6 3;
+  animation: lineDraw 12s linear infinite;
+}

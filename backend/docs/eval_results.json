@@ -1,7 +1,7 @@
 {
   "evaluation_version": "1.0.0",
   "seed": 42,
-  "evaluated_at": "2026-09-05T08:05:47.013Z",
+  "evaluated_at": "2026-09-05T09:44:03.231Z",
   "evaluation_a": {
     "benchmark_name": "Evaluation A — Deterministic Evidence Routing Performance",
     "seed": 42,
