@@ -1,7 +1,14 @@
-# Byte-compiled / optimized files
-__pycache__/
-*.py[cod]
-*$py.class
+# Node.js / TypeScript
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Environment files — NEVER commit API keys
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
 
 # Data export & temporary artifacts
 docs/eval_results.json
