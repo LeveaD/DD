@@ -117,6 +117,7 @@ export function formatDisputeDetail(
   c: DisputeCase,
   snapshot: VerifiedEvidenceSnapshot,
   auditEntries: readonly AuditLogEntry[] = [],
+  claimedUserId?: string,
 ): DisputeDetailDto {
   const auditTimeline = auditEntries
     .filter((e) => e.dispute_id === c.dispute_id)
@@ -135,7 +136,7 @@ export function formatDisputeDetail(
     id: c.dispute_id,
     dispute_id: c.dispute_id,
     transaction_id: c.transaction_id,
-    claimed_user_id: snapshot.user?.user_id ?? "usr_101",
+    claimed_user_id: claimedUserId ?? snapshot.user?.user_id ?? "usr_101",
     amount: c.amount,
     currency: c.currency,
     reason_code: c.reason_code,

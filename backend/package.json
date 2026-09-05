@@ -4,6 +4,8 @@
   "description": "DisputeDefend AI — Backend (Node.js + TypeScript)",
   "type": "module",
   "scripts": {
+    "dev": "npx tsx --env-file=.env src/api/server.ts",
+    "start": "npx tsx --env-file=.env src/api/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

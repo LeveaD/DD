@@ -49,10 +49,15 @@ export function validateEvidencePackage(
   const errors: string[] = [];
 
   // 1. State Boundary Check
-  const validStates = new Set(["RESPONSE_VALIDATED", "HUMAN_APPROVAL_REQUIRED"]);
+  const validStates = new Set([
+    "RESPONSE_VALIDATED",
+    "HUMAN_APPROVAL_REQUIRED",
+    "READY_FOR_SUBMISSION",
+    "SUBMITTED",
+  ]);
   if (!validStates.has(disputeCase.current_state)) {
     errors.push(
-      `State boundary violation: cannot finalize evidence package for dispute in state "${disputeCase.current_state}". Allowed states: RESPONSE_VALIDATED, HUMAN_APPROVAL_REQUIRED`,
+      `State boundary violation: cannot finalize evidence package for dispute in state "${disputeCase.current_state}". Allowed states: RESPONSE_VALIDATED, HUMAN_APPROVAL_REQUIRED, READY_FOR_SUBMISSION, SUBMITTED`,
     );
   }
 

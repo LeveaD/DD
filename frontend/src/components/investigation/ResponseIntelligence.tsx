@@ -64,7 +64,7 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({
             <Lock className="h-3 w-3 text-indigo-400 mt-0.5 shrink-0" />
             <p className="font-sans leading-normal">
               <span className="font-mono text-white text-[9px] uppercase font-bold">Boundary Lock: </span>
-              The generative model was supplied strictly verified evidence fields from the immutable store. The model cannot mutate evidence, alter dispute states, or create ungrounded claims.
+              The generative model was supplied strictly verified evidence fields from the verified merchant snapshot. The model cannot mutate evidence, alter dispute states, or create ungrounded claims.
             </p>
           </div>
         </div>

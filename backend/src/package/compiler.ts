@@ -40,13 +40,18 @@ export function compileEvidencePackage(
   auditEntries: readonly AuditLogEntry[] = [],
 ): CompilePackageResult {
   // 1. State Boundary Check
-  const allowedStates = new Set(["RESPONSE_VALIDATED", "HUMAN_APPROVAL_REQUIRED"]);
+  const allowedStates = new Set([
+    "RESPONSE_VALIDATED",
+    "HUMAN_APPROVAL_REQUIRED",
+    "READY_FOR_SUBMISSION",
+    "SUBMITTED",
+  ]);
   if (!allowedStates.has(disputeCase.current_state)) {
     return {
       ok: false,
       reason: "STATE_BOUNDARY_VIOLATION",
       errors: [
-        `Cannot compile evidence package for dispute in state "${disputeCase.current_state}". Allowed states: RESPONSE_VALIDATED, HUMAN_APPROVAL_REQUIRED`,
+        `Cannot compile evidence package for dispute in state "${disputeCase.current_state}". Allowed states: RESPONSE_VALIDATED, HUMAN_APPROVAL_REQUIRED, READY_FOR_SUBMISSION, SUBMITTED`,
       ],
     };
   }

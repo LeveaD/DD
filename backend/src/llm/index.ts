@@ -109,6 +109,7 @@ export async function runDraftingPipeline(
     const clientRes = createGroqClient();
     if (!clientRes.ok) {
       // Missing API key or config error -> fail closed to MANUAL_REVIEW
+      const prevState = disputeCase.current_state;
       transition(disputeCase.current_state, "MANUAL_REVIEW");
       disputeCase.current_state = "MANUAL_REVIEW";
       const failVal: ValidationResult = {
@@ -117,6 +118,16 @@ export async function runDraftingPipeline(
         reason: clientRes.reason,
       };
       disputeCase.validation_result = failVal;
+
+      options.auditLogger?.append({
+        dispute_id: disputeCase.dispute_id,
+        event_type: "LLM_API_FAILURE",
+        previous_state: prevState,
+        next_state: "MANUAL_REVIEW",
+        validation_result: failVal,
+        failure_reason: clientRes.detail,
+      });
+
       return {
         dispute_id: disputeCase.dispute_id,
         success: false,

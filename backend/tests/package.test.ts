@@ -135,6 +135,17 @@ describe("Milestone 5 — Evidence Package Compiler & Validator", () => {
     }
   });
 
+  it("allows package compilation for cases in READY_FOR_SUBMISSION and SUBMITTED states", () => {
+    const snapshot = createMockSnapshot();
+    const readyCase = createMockValidatedCase({ current_state: "READY_FOR_SUBMISSION" });
+    const readyRes = compileEvidencePackage(readyCase, snapshot);
+    expect(readyRes.ok).toBe(true);
+
+    const submittedCase = createMockValidatedCase({ current_state: "SUBMITTED" });
+    const submittedRes = compileEvidencePackage(submittedCase, snapshot);
+    expect(submittedRes.ok).toBe(true);
+  });
+
   it("rejects package compilation if LLM draft did NOT pass validation (validation_result.passed = false)", () => {
     const snapshot = createMockSnapshot();
     const disputeCase = createMockValidatedCase({

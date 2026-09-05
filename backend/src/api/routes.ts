@@ -70,7 +70,7 @@ export function createRouter(store: DemoDisputeStore): Router {
     }
 
     const auditEntries = store.auditLogger.getEntriesForDispute(id);
-    const dto = formatDisputeDetail(item.disputeCase, item.snapshot, auditEntries);
+    const dto = formatDisputeDetail(item.disputeCase, item.snapshot, auditEntries, item.claimedUserId);
     res.status(200).json({
       success: true,
       data: dto,
@@ -111,7 +111,7 @@ export function createRouter(store: DemoDisputeStore): Router {
 
       if (nonProcessableStates.has(disputeCase.current_state)) {
         const auditEntries = store.auditLogger.getEntriesForDispute(id);
-        const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries);
+        const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries, item.claimedUserId);
         res.status(200).json({
           success: true,
           data: dto,
@@ -123,7 +123,7 @@ export function createRouter(store: DemoDisputeStore): Router {
       const ingest: DisputeIngest = {
         dispute_id: disputeCase.dispute_id,
         transaction_id: disputeCase.transaction_id,
-        claimed_user_id: snapshot.user?.user_id ?? "usr_101",
+        claimed_user_id: item.claimedUserId ?? snapshot.user?.user_id ?? "usr_101",
         amount: disputeCase.amount,
         currency: disputeCase.currency,
         reason_code: disputeCase.reason_code,
@@ -181,7 +181,7 @@ export function createRouter(store: DemoDisputeStore): Router {
       }
 
       const auditEntries = store.auditLogger.getEntriesForDispute(id);
-      const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries);
+      const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries, item.claimedUserId);
 
       res.status(200).json({
         success: true,
@@ -250,7 +250,7 @@ export function createRouter(store: DemoDisputeStore): Router {
     });
 
     const auditEntries = store.auditLogger.getEntriesForDispute(id);
-    const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries);
+    const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries, item.claimedUserId);
 
     res.status(200).json({
       success: true,
@@ -312,7 +312,7 @@ export function createRouter(store: DemoDisputeStore): Router {
     });
 
     const auditEntries = store.auditLogger.getEntriesForDispute(id);
-    const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries);
+    const dto = formatDisputeDetail(disputeCase, snapshot, auditEntries, item.claimedUserId);
 
     res.status(200).json({
       success: true,
@@ -369,7 +369,7 @@ export function createRouter(store: DemoDisputeStore): Router {
     }
 
     const auditEntries = store.auditLogger.getEntriesForDispute(id);
-    const dto = formatDisputeDetail(item.disputeCase, item.snapshot, auditEntries);
+    const dto = formatDisputeDetail(item.disputeCase, item.snapshot, auditEntries, item.claimedUserId);
 
     res.status(200).json({
       success: true,
@@ -466,6 +466,21 @@ export function createRouter(store: DemoDisputeStore): Router {
         },
       });
     }
+  });
+
+  /**
+   * 11. POST /api/reset
+   * Reset store in-memory state and audit logs to clean initial demo state.
+   */
+  router.post("/reset", (_req: Request, res: Response) => {
+    store.reset();
+    res.status(200).json({
+      success: true,
+      data: {
+        status: "reset_complete",
+        disputes_count: store.getAllDisputes().length,
+      },
+    });
   });
 
   return router;

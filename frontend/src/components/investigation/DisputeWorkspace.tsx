@@ -297,7 +297,7 @@ export const DisputeWorkspace: React.FC<DisputeWorkspaceProps> = ({
           </div>
           <div>
             <span className="text-[#5c5a54] block text-[10px]">SECURITY AUDIT</span>
-            <span className="text-[#f4f3ef]">{detail.audit_timeline.length} Immutable Events</span>
+            <span className="text-[#f4f3ef]">{detail.audit_timeline.length} Audit Events</span>
           </div>
         </div>
       </section>

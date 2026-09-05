@@ -28,13 +28,24 @@ import { MERCHANT_DB } from "../data/fixtures.js";
 export interface DemoDisputeItem {
   disputeCase: DisputeCase;
   snapshot: VerifiedEvidenceSnapshot;
+  claimedUserId?: string;
 }
 
 export class DemoDisputeStore {
   private readonly disputes = new Map<string, DemoDisputeItem>();
-  public readonly auditLogger = new AuditLogger();
+  public auditLogger = new AuditLogger();
 
   constructor() {
+    this.seedDemoCases();
+  }
+
+  /**
+   * Reset store to initial seed state with fresh audit logger.
+   * Enables predictable demo repetition for hackathon presentation.
+   */
+  public reset(): void {
+    this.disputes.clear();
+    this.auditLogger = new AuditLogger();
     this.seedDemoCases();
   }
 
@@ -130,11 +141,10 @@ export class DemoDisputeStore {
     this.disputes.set(case1003.dispute_id, { disputeCase: case1003, snapshot: snapshot1003 });
 
     // 4. D-1004: Identity Mismatch Case
-    const mismatchedTxn504 = { ...b3.transaction, user_id: "usr_DIFFERENT_999" };
-
+    // Disputer claims to be usr_CLAIMED_MISMATCH_999, but merchant transaction belongs to b3.user (usr_004)
     const snapshot1004: VerifiedEvidenceSnapshot = {
       user: b3.user,
-      transaction: mismatchedTxn504,
+      transaction: b3.transaction,
       ip_logs: b3.ipLogs,
       tos_log: b3.tosLog,
       consumption_log: b3.consumptionLog,
@@ -152,7 +162,11 @@ export class DemoDisputeStore {
       created_at: "2026-03-05T01:15:00Z",
     };
 
-    this.disputes.set(case1004.dispute_id, { disputeCase: case1004, snapshot: snapshot1004 });
+    this.disputes.set(case1004.dispute_id, {
+      disputeCase: case1004,
+      snapshot: snapshot1004,
+      claimedUserId: "usr_CLAIMED_MISMATCH_999",
+    });
   }
 
   public getDispute(disputeId: string): DemoDisputeItem | undefined {

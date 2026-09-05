@@ -14,14 +14,14 @@ export const AuditLedger: React.FC<AuditLedgerProps> = ({ timeline }) => {
         <div>
           <div className="text-[10px] font-mono tracking-widest text-[#8a8880] uppercase flex items-center space-x-1.5">
             <History className="h-3 w-3" />
-            <span>IMMUTABLE CHRONICLE</span>
+            <span>APPEND-ONLY AUDIT</span>
           </div>
           <h3 className="text-base font-serif font-normal text-[#f4f3ef]">
-            Investigation Audit Ledger
+            Audit Events Ledger
           </h3>
         </div>
         <span className="text-[10px] font-mono text-[#5c5a54]">
-          APPEND ONLY • ZERO MUTATION
+          APPEND-ONLY • AUDIT EVENTS
         </span>
       </div>
 
@@ -60,18 +60,18 @@ export const AuditLedger: React.FC<AuditLedgerProps> = ({ timeline }) => {
                       {item.event_type}
                     </span>
                     <span className="text-[10px] text-[#5c5a54]">
-                      {item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : "N/A"}
+                      {new Date(item.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
 
-                  {/* State transition */}
+                  {/* Previous State -> Next State */}
                   <div className="flex items-center space-x-2 text-[10px] text-[#8a8880]">
-                    <span className="text-[#5c5a54]">{item.previous_state}</span>
-                    <ArrowRight className="h-2.5 w-2.5 text-[#5c5a54]" />
+                    <span>{item.previous_state}</span>
+                    <ArrowRight className="h-3 w-3 text-[#5c5a54]" />
                     <span className="text-[#f4f3ef] font-semibold">{item.next_state}</span>
                   </div>
 
-                  {/* Details / Rejection Notice */}
+                  {/* Failure reason if any */}
                   {item.failure_reason && (
                     <div className="p-2 rounded-sm bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] leading-relaxed mt-1.5">
                       <span className="font-bold">Failure rationale: </span>
@@ -81,7 +81,7 @@ export const AuditLedger: React.FC<AuditLedgerProps> = ({ timeline }) => {
 
                   {isRejection && (
                     <p className="text-[9px] text-[#5c5a54] italic pt-1">
-                      Traceability note: Non-compliant draft was retained in immutable audit history for investigative integrity, but excluded from merchant evidence bundle.
+                      Traceability note: Non-compliant draft was retained in append-only audit history for investigative integrity, but excluded from merchant evidence bundle.
                     </p>
                   )}
                 </div>

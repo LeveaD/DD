@@ -153,6 +153,10 @@ describe("Milestone 7 — REST API Adapter", () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.workflow_state).toBe("MANUAL_REVIEW");
+      expect(res.body.data.sufficiency_classification).toBe("NOT_DEFENDABLE");
+      expect(res.body.data.verification_results.signals.identity_match).toBe(false);
+      expect(res.body.data.verification_results.manual_review_reasons).toContain("IDENTITY_MISMATCH");
+      expect(res.body.data.validated_draft).toBeNull();
     });
 
     it("is idempotent: repeatedly processing an already-processed case returns current state", async () => {
@@ -349,6 +353,87 @@ describe("Milestone 7 — REST API Adapter", () => {
       const res = await request(app).get("/api/non-existent-endpoint");
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe("NOT_FOUND");
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // 12. Reset Endpoint
+  // ---------------------------------------------------------------------------
+  describe("POST /api/reset", () => {
+    it("resets store state and audit log to clean initial state", async () => {
+      // Process a dispute first
+      await request(app).post("/api/disputes/D-1002/process");
+      const beforeReset = store.getDispute("D-1002")!;
+      expect(beforeReset.disputeCase.current_state).toBe("MANUAL_REVIEW");
+      expect(store.auditLogger.getAllEntries().length).toBeGreaterThan(0);
+
+      // Call reset endpoint
+      const res = await request(app).post("/api/reset");
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe("reset_complete");
+      expect(res.body.data.disputes_count).toBe(4);
+
+      // Verify D-1002 is back in RECEIVED state and audit log is empty
+      const afterReset = store.getDispute("D-1002")!;
+      expect(afterReset.disputeCase.current_state).toBe("RECEIVED");
+      expect(store.auditLogger.getAllEntries().length).toBe(0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // 13. Controlled Validator Failure Demo
+  // ---------------------------------------------------------------------------
+  describe("Controlled Validator Failure Pipeline", () => {
+    it("fails closed to MANUAL_REVIEW when model generates corrupted entity, retains in audit, excludes from package", async () => {
+      const item = store.getDispute("D-1001")!;
+      item.disputeCase.current_state = "SUFFICIENCY_ASSESSED";
+
+      // Mock LLM client generating an altered financial amount (999999 instead of 3999)
+      const corruptedClient: GroqDraftClient = {
+        modelId: "openai/gpt-oss-20b",
+        temperature: 0.1,
+        async generateDraft() {
+          return JSON.stringify({
+            transaction_id: item.snapshot.transaction!.transaction_id,
+            user_id: item.snapshot.user!.user_id,
+            transaction_date: item.snapshot.transaction!.timestamp,
+            amount: 999999, // CORRUPTED AMOUNT
+            currency: item.snapshot.transaction!.currency,
+            tos_version: item.snapshot.tos_log?.tos_version ?? null,
+            tos_accepted_at: item.snapshot.tos_log?.accepted_at ?? null,
+            consumption_resource: item.snapshot.consumption_log?.resource_id ?? null,
+            consumption_timestamp: item.snapshot.consumption_log?.consumed_at ?? null,
+            transaction_ip: item.snapshot.transaction!.ip_address,
+            narrative: "Transaction with corrupted amount.",
+          });
+        },
+      };
+
+      const result = await runDraftingPipeline({
+        disputeCase: item.disputeCase,
+        snapshot: item.snapshot,
+        client: corruptedClient,
+        auditLogger: store.auditLogger,
+      });
+
+      // Assertions
+      expect(result.success).toBe(false);
+      expect(result.final_state).toBe("MANUAL_REVIEW");
+      expect(item.disputeCase.current_state).toBe("MANUAL_REVIEW");
+      expect(item.disputeCase.llm_draft).toBeUndefined(); // Excluded from package
+      expect(item.disputeCase.validation_result?.passed).toBe(false);
+
+      // Verify rejected draft retained in audit log
+      const auditEntries = store.auditLogger.getEntriesForDispute("D-1001");
+      const failEntry = auditEntries.find((e) => e.event_type === "POST_GEN_VALIDATION_FAILED");
+      expect(failEntry).toBeDefined();
+      expect(failEntry?.llm_output).toContain("999999");
+
+      // Verify PDF package cannot be generated
+      const pdfRes = await request(app).get("/api/disputes/D-1001/evidence-package");
+      expect(pdfRes.status).toBe(409);
+      expect(pdfRes.body.error.code).toBe("EVIDENCE_PACKAGE_NOT_AVAILABLE");
     });
   });
 });
