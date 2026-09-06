@@ -20,8 +20,8 @@ export function createApp(store?: DemoDisputeStore): Express {
   const app = express();
   const disputeStore = store ?? new DemoDisputeStore();
 
-  // 1. CORS Configuration for local React development
-  const allowedOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+  // 1. CORS Configuration for local React development and Vercel same-origin
+  const allowedOrigin = process.env.FRONTEND_ORIGIN || (process.env.VERCEL ? true : "http://localhost:5173");
   app.use(
     cors({
       origin: allowedOrigin,
@@ -33,8 +33,10 @@ export function createApp(store?: DemoDisputeStore): Express {
   // 2. JSON Request Body Parser
   app.use(express.json());
 
-  // 3. API Router Mount
-  app.use("/api", createRouter(disputeStore));
+  // 3. API Router Mount (supports both direct /api mount and serverless rewrite mount)
+  const router = createRouter(disputeStore);
+  app.use("/api", router);
+  app.use(router);
 
   // 4. 404 Unknown Route Handler
   app.use((_req: Request, res: Response) => {
